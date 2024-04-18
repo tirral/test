@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>3D Футбольный мяч</title>
+    <style>
+        body { 
+            margin: 0; 
+            height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            background: #e0e0e0; /* Легкий фон для контраста с прозрачным canvas */
+        }
+        canvas { 
+            display: block; 
+        }
+    </style>
+</head>
+<body>
+    <button id="startRotation">Запустить вращение</button>
+    <div id="rotationCounter" style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); color: black; font-size: 16px;">Обороты: 0</div>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.142.0/build/three.min.js"></script>
+    <script>
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+        camera.position.z = 6;
+        var renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
+        renderer.setSize(400, 400);
+        document.body.appendChild(renderer.domElement);
+
+        var light = new THREE.PointLight(0xffffff, 1, 100);
+        light.position.set(10, 10, 10);
+        scene.add(light);
+
+        var rotate = false;
+        var rotations = 0; 
+        var accumulatedRotation = 0;
+
+        var textureLoader = new THREE.TextureLoader();
+        textureLoader.load('fotboll_bg.jpg', function(texture) {
+            var material = new THREE.MeshPhongMaterial({ map: texture });
+            var geometry = new THREE.SphereGeometry(1, 32, 32);
+            var soccerBall = new THREE.Mesh(geometry, material);
+            soccerBall.scale.set(2.5, 2.5, 2.5);
+            scene.add(soccerBall);
+
+            function animate() {
+                requestAnimationFrame(animate);
+                if (rotate) {
+                    soccerBall.rotation.y += 0.05;
+                    accumulatedRotation += 0.05;
+                    if (accumulatedRotation >= 2 * Math.PI) {
+                        rotations += 1;
+                        accumulatedRotation -= 2 * Math.PI;
+                    }
+                }
+
+                document.getElementById('rotationCounter').innerText = "Обороты: " + rotations;
+                renderer.render(scene, camera);
+            }
+            animate();
+        });
+
+        function toggleRotation() {
+            rotate = !rotate;
+        }
+        document.getElementById('startRotation').addEventListener('click', toggleRotation);
+    </script>
+</body>
+</html>
